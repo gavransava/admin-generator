@@ -1,0 +1,16 @@
+{
+  "name": "admin-generator-studio",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "generator",
+    "backoffice",
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "node scripts/build-admin.mjs",
+    "build:admin": "node scripts/build-admin.mjs",
+    "typecheck": "npm run build -w packages/admin-schema && npm run typecheck -w packages/admin-ui && npm run typecheck -w generator && npm run typecheck -w backoffice",
+    "test": "npm run test -w packages/admin-schema && npm run test -w packages/admin-ui && npm run test -w generator && npm run test -w backoffice"
+  }
+}

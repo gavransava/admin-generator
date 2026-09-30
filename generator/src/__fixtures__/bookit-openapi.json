@@ -1,0 +1,3249 @@
+{
+    "openapi": "3.0.3",
+    "info": {
+        "title": "BookiT / Zaka\u017eiSam API",
+        "version": "1.0.0",
+        "description": "Appointment booking API. Base path `/api`. All responses are wrapped in `{ success, data }` on 2xx and `{ success:false, message }` on errors."
+    },
+    "servers": [
+        {
+            "url": "https://api.zakazisam.rs/api",
+            "description": "Prod"
+        },
+        {
+            "url": "https://api-qa.zakazisam.rs/api",
+            "description": "QA"
+        },
+        {
+            "url": "http://localhost:4000/api",
+            "description": "Local dev"
+        }
+    ],
+    "components": {
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT"
+            }
+        },
+        "schemas": {
+            "User": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email"
+                    },
+                    "role": {
+                        "type": "string",
+                        "enum": [
+                            "company",
+                            "client"
+                        ]
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updatedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "required": [
+                    "id",
+                    "email",
+                    "role"
+                ]
+            },
+            "Company": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "slug": {
+                        "type": "string"
+                    },
+                    "address": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "phone": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "businessType": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "bookingModel": {
+                        "type": "string",
+                        "enum": [
+                            "fixed",
+                            "class",
+                            "window"
+                        ]
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "required": [
+                    "id",
+                    "name",
+                    "slug",
+                    "bookingModel"
+                ]
+            },
+            "Booking": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "companyId": {
+                        "type": "string"
+                    },
+                    "clientId": {
+                        "type": "string"
+                    },
+                    "startAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "endAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "pending",
+                            "confirmed",
+                            "cancelled"
+                        ]
+                    },
+                    "notes": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "cancellationReason": {
+                        "type": "string",
+                        "nullable": true
+                    }
+                },
+                "required": [
+                    "id",
+                    "companyId",
+                    "clientId",
+                    "startAt",
+                    "endAt",
+                    "status"
+                ]
+            },
+            "SlotFixed": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "companyId": {
+                        "type": "string"
+                    },
+                    "startAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "endAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "open",
+                            "booked",
+                            "cancelled"
+                        ]
+                    },
+                    "notes": {
+                        "type": "string",
+                        "nullable": true
+                    }
+                },
+                "required": [
+                    "id",
+                    "companyId",
+                    "startAt",
+                    "endAt",
+                    "status"
+                ]
+            },
+            "Health": {
+                "type": "object",
+                "properties": {
+                    "status": {
+                        "type": "string"
+                    },
+                    "timestamp": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "required": [
+                    "status",
+                    "timestamp"
+                ]
+            },
+            "Pattern": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "companyId": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "schema": {
+                        "type": "object",
+                        "description": "Pattern schema JSON (weekly rules etc.)"
+                    },
+                    "loopMode": {
+                        "type": "string",
+                        "enum": [
+                            "none",
+                            "weekly",
+                            "biweekly"
+                        ]
+                    },
+                    "effectiveFrom": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "effectiveUntil": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "materializedThrough": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updatedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "required": [
+                    "id",
+                    "companyId",
+                    "name",
+                    "schema",
+                    "loopMode",
+                    "effectiveFrom"
+                ]
+            },
+            "PushSubscription": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "endpoint": {
+                        "type": "string"
+                    },
+                    "platform": {
+                        "type": "string",
+                        "enum": [
+                            "web",
+                            "expo"
+                        ]
+                    },
+                    "keys": {
+                        "type": "object",
+                        "nullable": true,
+                        "properties": {
+                            "p256dh": {
+                                "type": "string"
+                            },
+                            "auth": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "userAgent": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "required": [
+                    "id",
+                    "endpoint",
+                    "platform",
+                    "createdAt"
+                ]
+            },
+            "PaginationMeta": {
+                "type": "object",
+                "properties": {
+                    "page": {
+                        "type": "integer",
+                        "minimum": 1
+                    },
+                    "pageSize": {
+                        "type": "integer",
+                        "minimum": 1
+                    },
+                    "total": {
+                        "type": "integer",
+                        "minimum": 0
+                    },
+                    "totalPages": {
+                        "type": "integer",
+                        "minimum": 1
+                    }
+                },
+                "required": [
+                    "page",
+                    "pageSize",
+                    "total",
+                    "totalPages"
+                ]
+            },
+            "AdminCompany": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "userId": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "slug": {
+                        "type": "string"
+                    },
+                    "address": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "phone": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "businessType": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "bookingModel": {
+                        "type": "string",
+                        "enum": [
+                            "fixed",
+                            "class",
+                            "window"
+                        ]
+                    },
+                    "timezone": {
+                        "type": "string"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updatedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "deletedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "_counts": {
+                        "type": "object",
+                        "properties": {
+                            "bookings": {
+                                "type": "integer"
+                            },
+                            "slots": {
+                                "type": "integer"
+                            }
+                        },
+                        "required": [
+                            "bookings",
+                            "slots"
+                        ]
+                    }
+                },
+                "required": [
+                    "id",
+                    "userId",
+                    "name",
+                    "slug",
+                    "bookingModel",
+                    "timezone",
+                    "_counts"
+                ]
+            },
+            "AdminUser": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email"
+                    },
+                    "role": {
+                        "type": "string",
+                        "enum": [
+                            "company",
+                            "client"
+                        ]
+                    },
+                    "isAdmin": {
+                        "type": "boolean"
+                    },
+                    "emailVerifiedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "deletedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "company": {
+                        "type": "object",
+                        "nullable": true,
+                        "properties": {
+                            "id": {
+                                "type": "string"
+                            },
+                            "name": {
+                                "type": "string"
+                            },
+                            "slug": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "client": {
+                        "type": "object",
+                        "nullable": true,
+                        "properties": {
+                            "id": {
+                                "type": "string"
+                            },
+                            "firstName": {
+                                "type": "string"
+                            },
+                            "lastName": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "required": [
+                    "id",
+                    "email",
+                    "role",
+                    "isAdmin"
+                ]
+            },
+            "AdminBooking": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "companyId": {
+                        "type": "string"
+                    },
+                    "clientId": {
+                        "type": "string"
+                    },
+                    "slotId": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "startAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "endAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "pending",
+                            "confirmed",
+                            "cancelled"
+                        ]
+                    },
+                    "notes": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "cancellationReason": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "cancelledBy": {
+                        "type": "string",
+                        "enum": [
+                            "company",
+                            "client"
+                        ],
+                        "nullable": true
+                    },
+                    "cancelledAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updatedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "deletedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "company": {
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "type": "string"
+                            },
+                            "name": {
+                                "type": "string"
+                            },
+                            "slug": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "client": {
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "type": "string"
+                            },
+                            "firstName": {
+                                "type": "string"
+                            },
+                            "lastName": {
+                                "type": "string"
+                            },
+                            "email": {
+                                "type": "string",
+                                "format": "email"
+                            }
+                        }
+                    }
+                },
+                "required": [
+                    "id",
+                    "companyId",
+                    "clientId",
+                    "startAt",
+                    "endAt",
+                    "status"
+                ]
+            },
+            "AdminSlot": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "companyId": {
+                        "type": "string"
+                    },
+                    "startAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "endAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "open",
+                            "booked",
+                            "cancelled"
+                        ]
+                    },
+                    "notes": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "patternId": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "patternInstanceKey": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updatedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "deletedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "company": {
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "type": "string"
+                            },
+                            "name": {
+                                "type": "string"
+                            },
+                            "slug": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "required": [
+                    "id",
+                    "companyId",
+                    "startAt",
+                    "endAt",
+                    "status"
+                ]
+            }
+        }
+    },
+    "paths": {
+        "/slots": {
+            "get": {
+                "summary": "List slots for a company",
+                "tags": [
+                    "Slots"
+                ],
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "companyId",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "page",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "pageSize",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 100
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "A page of slots",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/SlotFixed"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "summary": "Create a slot (company only)",
+                "tags": [
+                    "Slots"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "x-required-role": "company",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "startAt",
+                                    "endAt"
+                                ],
+                                "properties": {
+                                    "startAt": {
+                                        "type": "string",
+                                        "format": "date-time"
+                                    },
+                                    "endAt": {
+                                        "type": "string",
+                                        "format": "date-time"
+                                    },
+                                    "notes": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    }
+                }
+            }
+        },
+        "/slots/{id}": {
+            "patch": {
+                "summary": "Update slot",
+                "tags": [
+                    "Slots"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "x-required-role": "company",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "startAt": {
+                                        "type": "string",
+                                        "format": "date-time"
+                                    },
+                                    "endAt": {
+                                        "type": "string",
+                                        "format": "date-time"
+                                    },
+                                    "notes": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Updated"
+                    }
+                }
+            },
+            "delete": {
+                "summary": "Delete slot",
+                "tags": [
+                    "Slots"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "x-required-role": "company",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Deleted"
+                    }
+                }
+            }
+        },
+        "/push/subscribe": {
+            "post": {
+                "summary": "Register a device or browser push subscription for the current user",
+                "tags": [
+                    "Push"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "oneOf": [
+                                    {
+                                        "type": "object",
+                                        "required": [
+                                            "endpoint",
+                                            "keys"
+                                        ],
+                                        "properties": {
+                                            "platform": {
+                                                "type": "string",
+                                                "enum": [
+                                                    "web"
+                                                ],
+                                                "default": "web"
+                                            },
+                                            "endpoint": {
+                                                "type": "string",
+                                                "format": "uri"
+                                            },
+                                            "keys": {
+                                                "type": "object",
+                                                "required": [
+                                                    "p256dh",
+                                                    "auth"
+                                                ],
+                                                "properties": {
+                                                    "p256dh": {
+                                                        "type": "string"
+                                                    },
+                                                    "auth": {
+                                                        "type": "string"
+                                                    }
+                                                }
+                                            },
+                                            "userAgent": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "type": "object",
+                                        "required": [
+                                            "platform",
+                                            "endpoint"
+                                        ],
+                                        "properties": {
+                                            "platform": {
+                                                "type": "string",
+                                                "enum": [
+                                                    "expo"
+                                                ]
+                                            },
+                                            "endpoint": {
+                                                "type": "string"
+                                            },
+                                            "userAgent": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Existing subscription refreshed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean"
+                                        },
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "subscription": {
+                                                    "$ref": "#/components/schemas/PushSubscription"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "201": {
+                        "description": "New subscription created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean"
+                                        },
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "subscription": {
+                                                    "$ref": "#/components/schemas/PushSubscription"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "summary": "Remove a push subscription for the current user",
+                "tags": [
+                    "Push"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "endpoint"
+                                ],
+                                "properties": {
+                                    "endpoint": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Removed (or already absent)"
+                    }
+                }
+            }
+        },
+        "/patterns": {
+            "get": {
+                "summary": "List recurring slot patterns owned by the current company",
+                "tags": [
+                    "Patterns"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "x-required-role": "company",
+                "responses": {
+                    "200": {
+                        "description": "A list of patterns",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Pattern"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "summary": "Create a new pattern",
+                "tags": [
+                    "Patterns"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "x-required-role": "company",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "name",
+                                    "schema",
+                                    "effectiveFrom"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "minLength": 1
+                                    },
+                                    "schema": {
+                                        "type": "object",
+                                        "description": "Pattern JSON schema (weekly rules etc.); validated with Zod"
+                                    },
+                                    "loopMode": {
+                                        "type": "string",
+                                        "enum": [
+                                            "none",
+                                            "weekly",
+                                            "biweekly"
+                                        ],
+                                        "default": "weekly"
+                                    },
+                                    "effectiveFrom": {
+                                        "type": "string",
+                                        "format": "date-time"
+                                    },
+                                    "effectiveUntil": {
+                                        "type": "string",
+                                        "format": "date-time",
+                                        "nullable": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/Pattern"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/patterns/{id}": {
+            "patch": {
+                "summary": "Update a pattern",
+                "tags": [
+                    "Patterns"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "x-required-role": "company",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "minLength": 1
+                                    },
+                                    "schema": {
+                                        "type": "object"
+                                    },
+                                    "loopMode": {
+                                        "type": "string",
+                                        "enum": [
+                                            "none",
+                                            "weekly",
+                                            "biweekly"
+                                        ]
+                                    },
+                                    "effectiveFrom": {
+                                        "type": "string",
+                                        "format": "date-time"
+                                    },
+                                    "effectiveUntil": {
+                                        "type": "string",
+                                        "format": "date-time",
+                                        "nullable": true
+                                    },
+                                    "bookedSlotAction": {
+                                        "type": "string",
+                                        "enum": [
+                                            "preserve",
+                                            "cancel"
+                                        ],
+                                        "description": "How to treat already-booked slots impacted by the edit"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Updated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/Pattern"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict \u2014 booked slots impacted; retry with `bookedSlotAction`"
+                    }
+                }
+            },
+            "delete": {
+                "summary": "Delete a pattern",
+                "tags": [
+                    "Patterns"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "x-required-role": "company",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "bookedSlotAction": {
+                                        "type": "string",
+                                        "enum": [
+                                            "preserve",
+                                            "cancel"
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Deleted"
+                    },
+                    "409": {
+                        "description": "Conflict \u2014 booked slots impacted; retry with `bookedSlotAction`"
+                    }
+                }
+            }
+        },
+        "/patterns/{id}/apply": {
+            "post": {
+                "summary": "Materialize slots from a pattern up through a horizon date",
+                "tags": [
+                    "Patterns"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "x-required-role": "company",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "through": {
+                                        "type": "string",
+                                        "format": "date-time"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Materialized slot count",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean"
+                                        },
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "created": {
+                                                    "type": "integer"
+                                                },
+                                                "materializedThrough": {
+                                                    "type": "string",
+                                                    "format": "date-time"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/patterns/{id}/preview": {
+            "post": {
+                "summary": "Preview slots that would be generated by a pattern (no writes)",
+                "tags": [
+                    "Patterns"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "x-required-role": "company",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "from": {
+                                        "type": "string",
+                                        "format": "date-time"
+                                    },
+                                    "through": {
+                                        "type": "string",
+                                        "format": "date-time"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "List of would-be slots",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/SlotFixed"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/health": {
+            "get": {
+                "summary": "Health check",
+                "tags": [
+                    "System"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Health"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/events/company": {
+            "get": {
+                "summary": "Server-Sent Events stream for a company's real-time updates",
+                "description": "Long-lived `text/event-stream` connection. Emits JSON events for\nbooking / slot / pattern changes scoped to the authenticated company.\nConsumers should use `EventSource` and treat this as append-only.\n",
+                "tags": [
+                    "Events"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "x-required-role": "company",
+                "responses": {
+                    "200": {
+                        "description": "SSE stream",
+                        "content": {
+                            "text/event-stream": {
+                                "schema": {
+                                    "type": "string",
+                                    "example": "event: slot.updated\ndata: {\"id\":\"...\",\"status\":\"booked\"}\n"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/companies/me": {
+            "get": {
+                "summary": "Get the current authenticated company's profile",
+                "tags": [
+                    "Companies"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "x-required-role": "company",
+                "responses": {
+                    "200": {
+                        "description": "The company profile",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/Company"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No company profile for this user"
+                    }
+                }
+            }
+        },
+        "/companies/{id}": {
+            "get": {
+                "summary": "Get a company by id or slug",
+                "tags": [
+                    "Companies"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The company",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/Company"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found"
+                    }
+                }
+            },
+            "put": {
+                "summary": "Update a company",
+                "tags": [
+                    "Companies"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "x-required-role": "company",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "minLength": 1
+                                    },
+                                    "address": {
+                                        "type": "string",
+                                        "nullable": true
+                                    },
+                                    "phone": {
+                                        "type": "string",
+                                        "nullable": true
+                                    },
+                                    "businessType": {
+                                        "type": "string",
+                                        "nullable": true
+                                    },
+                                    "bookingModel": {
+                                        "type": "string",
+                                        "enum": [
+                                            "fixed",
+                                            "class",
+                                            "window"
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Updated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/Company"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/bookings": {
+            "get": {
+                "summary": "List bookings (role-filtered)",
+                "tags": [
+                    "Bookings"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "q",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Free-text search over notes"
+                    },
+                    {
+                        "in": "query",
+                        "name": "sort",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "startAt",
+                                "-startAt",
+                                "createdAt",
+                                "-createdAt"
+                            ]
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "page",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "pageSize",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 100
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "A page of bookings",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Booking"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "summary": "Create a booking (client only)",
+                "tags": [
+                    "Bookings"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "x-required-role": "client",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "companyId",
+                                    "startAt",
+                                    "endAt"
+                                ],
+                                "properties": {
+                                    "companyId": {
+                                        "type": "string"
+                                    },
+                                    "startAt": {
+                                        "type": "string",
+                                        "format": "date-time"
+                                    },
+                                    "endAt": {
+                                        "type": "string",
+                                        "format": "date-time"
+                                    },
+                                    "notes": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    }
+                }
+            }
+        },
+        "/bookings/{id}/cancel": {
+            "patch": {
+                "summary": "Cancel a booking",
+                "tags": [
+                    "Bookings"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "cancellationReason": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Cancelled",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/Booking"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/register": {
+            "post": {
+                "summary": "Register a new user (company or client)",
+                "tags": [
+                    "Auth"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "email",
+                                    "password",
+                                    "name",
+                                    "role"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "minLength": 8
+                                    },
+                                    "name": {
+                                        "type": "string",
+                                        "minLength": 1
+                                    },
+                                    "role": {
+                                        "type": "string",
+                                        "enum": [
+                                            "company",
+                                            "client"
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Created; access token returned in body, refresh token in httpOnly cookie",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean"
+                                        },
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "tokens": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "accessToken": {
+                                                            "type": "string"
+                                                        }
+                                                    }
+                                                },
+                                                "user": {
+                                                    "$ref": "#/components/schemas/User"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Email already in use"
+                    }
+                }
+            }
+        },
+        "/auth/login": {
+            "post": {
+                "summary": "Log in with email + password",
+                "tags": [
+                    "Auth"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email"
+                                    },
+                                    "password": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success; access token in body, refresh token in httpOnly cookie",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean"
+                                        },
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "tokens": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "accessToken": {
+                                                            "type": "string"
+                                                        }
+                                                    }
+                                                },
+                                                "user": {
+                                                    "$ref": "#/components/schemas/User"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid credentials"
+                    }
+                }
+            }
+        },
+        "/auth/me": {
+            "get": {
+                "summary": "Current authenticated user",
+                "tags": [
+                    "Auth"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The current user",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/User"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    }
+                }
+            }
+        },
+        "/auth/refresh": {
+            "post": {
+                "summary": "Rotate access + refresh tokens using the refresh cookie",
+                "tags": [
+                    "Auth"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "New access token in body; new refresh token set as httpOnly cookie",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean"
+                                        },
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "tokens": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "accessToken": {
+                                                            "type": "string"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Refresh cookie missing, expired, or revoked"
+                    }
+                }
+            }
+        },
+        "/auth/logout": {
+            "post": {
+                "summary": "Revoke current refresh token and clear its cookie",
+                "tags": [
+                    "Auth"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Logged out"
+                    }
+                }
+            }
+        },
+        "/auth/verify-email": {
+            "post": {
+                "summary": "Confirm email using verification link token or OTP",
+                "tags": [
+                    "Auth"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "oneOf": [
+                                    {
+                                        "type": "object",
+                                        "required": [
+                                            "token"
+                                        ],
+                                        "properties": {
+                                            "token": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "type": "object",
+                                        "required": [
+                                            "email",
+                                            "otp"
+                                        ],
+                                        "properties": {
+                                            "email": {
+                                                "type": "string",
+                                                "format": "email"
+                                            },
+                                            "otp": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Email verified"
+                    },
+                    "400": {
+                        "description": "Invalid or expired token/OTP"
+                    }
+                }
+            }
+        },
+        "/auth/resend-verify": {
+            "post": {
+                "summary": "Resend the verification email to the current user",
+                "tags": [
+                    "Auth"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Verification email dispatched (best-effort)"
+                    }
+                }
+            }
+        },
+        "/auth/forgot-password": {
+            "post": {
+                "summary": "Start password reset flow \u2014 sends reset email if the address exists",
+                "tags": [
+                    "Auth"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "email"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Always 200 to avoid account enumeration"
+                    }
+                }
+            }
+        },
+        "/auth/reset-password": {
+            "post": {
+                "summary": "Complete password reset using the emailed token",
+                "tags": [
+                    "Auth"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "token",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "token": {
+                                        "type": "string"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "minLength": 8
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Password updated; all refresh tokens revoked"
+                    },
+                    "400": {
+                        "description": "Invalid or expired token / weak password"
+                    }
+                }
+            }
+        },
+        "/admin/users": {
+            "get": {
+                "summary": "List all users (cross-tenant admin view)",
+                "tags": [
+                    "Admin"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "x-required-role": "admin",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "q",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Case-insensitive substring match against email"
+                    },
+                    {
+                        "in": "query",
+                        "name": "role",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "company",
+                                "client"
+                            ]
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "isAdmin",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "0",
+                                "1",
+                                "true",
+                                "false"
+                            ]
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "page",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "default": 1
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "pageSize",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 100,
+                            "default": 25
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "sort",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Field name, prefix with `-` for descending. Allowed: email, role, createdAt."
+                    },
+                    {
+                        "in": "query",
+                        "name": "includeDeleted",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "1",
+                                "true"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "A page of users",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/AdminUser"
+                                            }
+                                        },
+                                        "pagination": {
+                                            "$ref": "#/components/schemas/PaginationMeta"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/users/{id}": {
+            "get": {
+                "summary": "Get a user by id (admin view)",
+                "tags": [
+                    "Admin"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "x-required-role": "admin",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "includeDeleted",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "1",
+                                "true"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The user",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/AdminUser"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found"
+                    }
+                }
+            },
+            "patch": {
+                "summary": "Update admin flag or email-verification for a user",
+                "tags": [
+                    "Admin"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "x-required-role": "admin",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "isAdmin": {
+                                        "type": "boolean"
+                                    },
+                                    "emailVerifiedAt": {
+                                        "type": "string",
+                                        "format": "date-time",
+                                        "nullable": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Updated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/AdminUser"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "summary": "Soft-delete a user (cascades to their Company profile)",
+                "tags": [
+                    "Admin"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "x-required-role": "admin",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Soft-deleted",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/AdminUser"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Cannot delete your own admin account"
+                    }
+                }
+            }
+        },
+        "/admin/users/{id}/restore": {
+            "post": {
+                "summary": "Restore a soft-deleted user (and their Company profile if present)",
+                "tags": [
+                    "Admin"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "x-required-role": "admin",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Restored",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/AdminUser"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/slots": {
+            "get": {
+                "summary": "List all slots (cross-tenant admin view; read-only)",
+                "tags": [
+                    "Admin"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "x-required-role": "admin",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "companyId",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "status",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "open",
+                                "booked",
+                                "cancelled"
+                            ]
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "startFrom",
+                        "schema": {
+                            "type": "string",
+                            "format": "date-time"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "startTo",
+                        "schema": {
+                            "type": "string",
+                            "format": "date-time"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "page",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "default": 1
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "pageSize",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 100,
+                            "default": 25
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "sort",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Allowed: startAt, createdAt (prefix `-` for desc)"
+                    },
+                    {
+                        "in": "query",
+                        "name": "includeDeleted",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "1",
+                                "true"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "A page of slots",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/AdminSlot"
+                                            }
+                                        },
+                                        "pagination": {
+                                            "$ref": "#/components/schemas/PaginationMeta"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/slots/{id}": {
+            "get": {
+                "summary": "Get a slot (admin view \u2014 includes company mini-object)",
+                "tags": [
+                    "Admin"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "x-required-role": "admin",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "includeDeleted",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "1",
+                                "true"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The slot",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/AdminSlot"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found"
+                    }
+                }
+            }
+        },
+        "/admin/companies": {
+            "get": {
+                "summary": "List all companies (cross-tenant admin view)",
+                "tags": [
+                    "Admin"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "x-required-role": "admin",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "q",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Case-insensitive substring match against name or slug"
+                    },
+                    {
+                        "in": "query",
+                        "name": "page",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "default": 1
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "pageSize",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 100,
+                            "default": 25
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "sort",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Field name, prefix with `-` for descending. Allowed: name, slug, createdAt, updatedAt."
+                    },
+                    {
+                        "in": "query",
+                        "name": "includeDeleted",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "1",
+                                "true"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "A page of companies",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/AdminCompany"
+                                            }
+                                        },
+                                        "pagination": {
+                                            "$ref": "#/components/schemas/PaginationMeta"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/companies/{id}": {
+            "get": {
+                "summary": "Get a company by id (admin view \u2014 includes soft-deleted with `?includeDeleted=1`)",
+                "tags": [
+                    "Admin"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "x-required-role": "admin",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "includeDeleted",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "1",
+                                "true"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The company",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/AdminCompany"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found"
+                    }
+                }
+            },
+            "patch": {
+                "summary": "Update a company (admin \u2014 bypasses tenant ownership)",
+                "tags": [
+                    "Admin"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "x-required-role": "admin",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "minLength": 2
+                                    },
+                                    "slug": {
+                                        "type": "string"
+                                    },
+                                    "address": {
+                                        "type": "string",
+                                        "nullable": true
+                                    },
+                                    "phone": {
+                                        "type": "string",
+                                        "nullable": true
+                                    },
+                                    "businessType": {
+                                        "type": "string",
+                                        "nullable": true
+                                    },
+                                    "bookingModel": {
+                                        "type": "string",
+                                        "enum": [
+                                            "fixed",
+                                            "class",
+                                            "window"
+                                        ]
+                                    },
+                                    "timezone": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Updated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/AdminCompany"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Slug already taken"
+                    }
+                }
+            },
+            "delete": {
+                "summary": "Soft-delete a company (sets `deletedAt`; use restore to undo)",
+                "tags": [
+                    "Admin"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "x-required-role": "admin",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Soft-deleted; body includes the tombstoned company",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/AdminCompany"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/companies/{id}/restore": {
+            "post": {
+                "summary": "Restore a soft-deleted company (clears `deletedAt`)",
+                "tags": [
+                    "Admin"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "x-required-role": "admin",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Restored",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/AdminCompany"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/bookings": {
+            "get": {
+                "summary": "List all bookings (cross-tenant admin view)",
+                "tags": [
+                    "Admin"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "x-required-role": "admin",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "companyId",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "clientId",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "status",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "pending",
+                                "confirmed",
+                                "cancelled"
+                            ]
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "startFrom",
+                        "schema": {
+                            "type": "string",
+                            "format": "date-time"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "startTo",
+                        "schema": {
+                            "type": "string",
+                            "format": "date-time"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "page",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "default": 1
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "pageSize",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 100,
+                            "default": 25
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "sort",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Allowed: startAt, createdAt (prefix `-` for desc)"
+                    },
+                    {
+                        "in": "query",
+                        "name": "includeDeleted",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "1",
+                                "true"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "A page of bookings",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/AdminBooking"
+                                            }
+                                        },
+                                        "pagination": {
+                                            "$ref": "#/components/schemas/PaginationMeta"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/bookings/{id}": {
+            "get": {
+                "summary": "Get a booking (admin view \u2014 includes company + client + email)",
+                "tags": [
+                    "Admin"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "x-required-role": "admin",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "includeDeleted",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "1",
+                                "true"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The booking",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/AdminBooking"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found"
+                    }
+                }
+            },
+            "delete": {
+                "summary": "Soft-delete a booking",
+                "tags": [
+                    "Admin"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "x-required-role": "admin",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Soft-deleted",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/AdminBooking"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/bookings/{id}/restore": {
+            "post": {
+                "summary": "Restore a soft-deleted booking",
+                "tags": [
+                    "Admin"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "x-required-role": "admin",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Restored",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/AdminBooking"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "tags": []
+}
