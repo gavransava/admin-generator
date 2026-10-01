@@ -7,8 +7,6 @@ Two React apps that let you point at any OpenAPI 3 document and get a working ad
 - `packages/admin-schema/` — Zod contracts + deterministic renderer inference for the bundle
 - `packages/admin-ui/` — shared React primitives (DataTable, DetailView, AutoForm, Sidebar, renderers)
 
-Extracted from the ZakažiSam (BookiT) monorepo on 2026-09-30, immediately before the BookiT repo replaced its wizard-driven admin with a purpose-built app. Initial import corresponds to BookiT sha `9e476a1`.
-
 ## Layout
 
 ```
@@ -51,7 +49,3 @@ grep -rl "@studio/" . | xargs sed -i '' 's|@studio/|@yourbrand/|g'
 ## Deployment
 
 `scripts/build-admin.mjs` produces a static `admin-dist/` tree ready for Cloudflare Pages, Netlify, S3, or any static host. The generator writes its output bundle to `localStorage`; the backoffice reads it on load.
-
-## History
-
-See BookiT git log up through `9e476a1` for the pre-extraction history of these files.
